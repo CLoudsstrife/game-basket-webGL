@@ -1,0 +1,183 @@
+html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #090b0e;
+    font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+}
+
+#mycanvas {
+    display: block; width: 100vw; height: 100vh;
+    cursor: grab; touch-action: none;
+}
+#mycanvas:active { cursor: grabbing; }
+
+.hidden { display: none !important; }
+.pointerEventsNone { pointer-events: none; }
+.pointerEventsAuto { pointer-events: auto; }
+
+.overlayState {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 10;
+}
+
+#mainMenu {
+    background: rgba(12, 16, 24, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.cartoonMenuCard {
+    background: #ffd13b;
+    border: 6px solid #522700;
+    border-radius: 28px;
+    padding: 38px 48px;
+    text-align: center;
+    box-shadow: 0 12px 0 #522700, 0 20px 30px rgba(0, 0, 0, 0.6);
+    max-width: 360px; width: 85%;
+}
+
+.gameLogoTitle {
+    color: #ff521d;
+    font-size: 34px;
+    font-weight: 900;
+    margin: 0 0 28px 0;
+    letter-spacing: 2px;
+    text-shadow: 3px 3px 0 #522700, -2px -2px 0 #fff;
+    line-height: 1.1;
+}
+
+.menuBtnContainer {
+    display: flex; flex-direction: column; gap: 16px;
+}
+
+.cartoonBtn {
+    border: 4px solid #3d1c00;
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #3d1c00;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    color: #fff;
+    text-shadow: 2px 2px 0 #3d1c00;
+}
+
+.cartoonBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 #3d1c00;
+}
+
+.cartoonBtn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #3d1c00;
+}
+
+.cartoonBtn.small {
+    font-size: 16px; padding: 10px 24px; border-width: 3px; box-shadow: 0 4px 0 #3d1c00;
+}
+
+.cartoonBtn.mini {
+    font-size: 12px; padding: 6px 16px; border-width: 2px; box-shadow: 0 3px 0 #3d1c00;
+}
+
+.btnOrange { background: #ff7a1a; }
+.btnOrange:hover { background: #ff8e38; }
+
+.btnRed { background: #e63946; }
+.btnRed:hover { background: #f04855; }
+
+.droneHeader {
+    position: fixed; top: 30px; text-align: center;
+    color: #ffffff; text-shadow: 0 3px 6px rgba(0,0,0,0.8);
+}
+.droneHeader h2 { margin: 0; font-size: 26px; color: #ffb703; }
+.droneHeader p { margin: 4px 0 0 0; font-size: 13px; color: #d0d5dd; }
+
+.courtBar, .spotBtnContainer {
+    position: fixed; bottom: 100px;
+    display: flex; gap: 12px;
+}
+
+.courtPickBtn, .spotBtn {
+    background: rgba(18, 22, 31, 0.9);
+    border: 2px solid #ff7a1a;
+    border-radius: 12px;
+    color: #fff;
+    padding: 12px 18px;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer; backdrop-filter: blur(6px);
+    transition: all 0.15s ease;
+}
+
+.courtPickBtn.active, .spotBtn.active {
+    background: #ff7a1a; color: #12151c;
+    box-shadow: 0 0 15px rgba(255, 122, 26, 0.6);
+}
+
+#btnConfirmCourt, #btnStartGame {
+    position: fixed; bottom: 35px;
+}
+
+#gameHint {
+    position: fixed; top: 18px; left: 18px; width: 200px;
+    color: #8b93a3; font-size: 12px; line-height: 1.5;
+}
+#gameHint strong { color: #ff9a4d; font-size: 14px; }
+
+#btnBackMenu {
+    position: fixed; top: 18px; left: 230px;
+}
+
+/* HEADER TOP STATUS SCORE, TIMER, WIND */
+#statusHeader {
+    position: fixed; top: 18px; right: 18px;
+    display: flex; gap: 12px;
+}
+
+.statBox {
+    padding: 8px 16px;
+    background: rgba(10, 12, 17, 0.86);
+    border-left: 3px solid #ff7a1a;
+    border-radius: 6px; backdrop-filter: blur(6px);
+    text-align: right;
+}
+
+.statBox .label { color: #9aa0ad; font-size: 9px; letter-spacing: 1.5px; }
+.statBox .value { font-family: "Courier New", monospace; font-size: 24px; font-weight: 700; color: #ffb703; }
+
+#controls {
+    position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px; padding: 14px 18px;
+    background: rgba(10, 12, 17, 0.92); border: 1px solid rgba(255, 122, 26, 0.35);
+    border-radius: 12px; backdrop-filter: blur(8px);
+}
+
+.timingGroup { width: 160px; display: flex; flex-direction: column; gap: 6px; }
+.timingTitle { text-align: center; font-size: 10px; font-weight: 700; color: #a7adb8; }
+.timingScale { display: flex; justify-content: space-between; color: #737b89; font-family: "Courier New", monospace; font-size: 9px; }
+.timingBar { position: relative; width: 100%; height: 22px; }
+.timingTrack { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 8px; border-radius: 5px; background: #242933; }
+.timingTarget { position: absolute; top: 50%; left: 50%; width: 5px; height: 18px; transform: translate(-50%, -50%); background: #ffb703; border-radius: 2px; }
+.timingIndicator { position: absolute; top: 50%; left: 0%; width: 15px; height: 15px; transform: translate(-50%, -50%); border-radius: 50%; background: #ff7a1a; }
+.timingValue { text-align: center; font-family: "Courier New", monospace; font-size: 12px; font-weight: 700; color: #ff9a4d; }
+
+#throwBtn {
+    width: 130px; min-height: 44px; border: none; border-radius: 8px;
+    background: #ff7a1a; color: #12151c; font-size: 12px; font-weight: 900;
+    cursor: pointer;
+}
+#throwBtn.ready { background: #ffb703; }
+#throwBtn.throwing { background: #525965; color: #d4d7dc; cursor: default; }
+
+#popup {
+    position: fixed; top: 43%; left: 50%; transform: translate(-50%, -50%) scale(0.65);
+    opacity: 0; pointer-events: none; font-size: 72px; font-weight: 900; color: #ffb703;
+    transition: all 0.2s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+#popup.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+#popup.miss { color: #858c99; font-size: 46px; }
+#popup.net { color: #ff9a4d; font-size: 58px; }

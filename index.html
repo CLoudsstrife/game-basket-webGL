@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Basketball Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            color: #fff;
+        }
+
+        #mycanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(10, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        .modal-card {
+            background: rgba(25, 30, 45, 0.95);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff007f;
+            text-shadow: 0 0 12px rgba(255, 0, 127, 0.8);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            outline: none;
+        }
+
+        select {
+            background: #1a2235;
+            color: #fff;
+            border: 1px solid #34495e;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff007f, #9b59b6);
+            color: #fff;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 127, 0.7);
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pick-btn {
+            background: #1a2235;
+            border: 2px solid #34495e;
+            color: #fff;
+            padding: 12px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .pick-btn.active, .pick-btn:hover {
+            border-color: #ff007f;
+            background: rgba(255, 0, 127, 0.25);
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+        }
+
+        #gameplayUI {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hud-header {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hud-card {
+            background: rgba(15, 20, 30, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 10px;
+            backdrop-filter: blur(4px);
+            font-size: 14px;
+        }
+
+        .hud-card span {
+            font-weight: bold;
+            color: #ff007f;
+            font-size: 18px;
+        }
+
+        .ball-tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .ball-tag.normal { background: #e67e22; }
+        .ball-tag.money { background: linear-gradient(135deg, #ff007f, #00d2ff); }
+
+        .timing-container {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 420px;
+            background: rgba(15, 20, 30, 0.85);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            pointer-events: auto;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .timing-row {
+            margin-bottom: 10px;
+        }
+
+        .timing-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .timing-track {
+            position: relative;
+            width: 100%;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 9px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .bar-green-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: rgba(46, 204, 113, 0.65);
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bar-yellow-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: #f1c40f;
+            box-shadow: 0 0 10px #f1c40f, 0 0 4px #ffffff;
+            z-index: 2;
+        }
+
+        .timing-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #ffffff;
+            box-shadow: 0 0 8px #ffffff;
+            z-index: 3;
+            transform: translateX(-50%);
+        }
+
+        #throwBtn {
+            margin-top: 6px;
+            background: #27ae60;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #throwBtn.ready { background: #e67e22; }
+        #throwBtn.throwing { background: #7f8c8d; cursor: not-allowed; }
+
+        #popup {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-size: 32px;
+            font-weight: 900;
+            color: #2ecc71;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        #popup.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        #popup.miss { color: #e74c3c; }
+        #popup.net { color: #ff007f; text-shadow: 0 0 20px #ff007f; }
+
+        .record-badge {
+            background: #27ae60;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="mycanvas"></canvas>
+
+    <!-- Main Menu Overlay -->
+    <div class="ui-overlay" id="mainMenu">
+        <div class="modal-card">
+            <h1>3D BASKETBALL</h1>
+            <div class="form-group">
+                <label for="modeSelect">Mode Permainan</label>
+                <select id="modeSelect">
+                    <option value="timeattack">Time Attack</option>
+                    <option value="3ptcontest">3-Point Contest</option>
+                    <option value="practice">Latihan (Free Play)</option>
+                </select>
+            </div>
+            <div class="form-group" id="timeOptionGroup">
+                <label for="timeSelect">Batas Waktu</label>
+                <select id="timeSelect">
+                    <option value="30">30 Detik</option>
+                    <option value="60" selected>60 Detik</option>
+                    <option value="90">90 Detik</option>
+                </select>
+            </div>
+            <div class="form-group" id="moneyRackGroup" style="display: none;">
+                <label for="moneyRackSelect">Money Ball Rack</label>
+                <select id="moneyRackSelect">
+                    <option value="0">Rack 1 (Left Corner)</option>
+                    <option value="1">Rack 2 (Left Wing)</option>
+                    <option value="2" selected>Rack 3 (Top of Key)</option>
+                    <option value="3">Rack 4 (Right Wing)</option>
+                    <option value="4">Rack 5 (Right Corner)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="skinSelect">Skin Bola</label>
+                <select id="skinSelect">
+                    <option value="cyber">Cyber Neon</option>
+                    <option value="classic">Classic Orange</option>
+                    <option value="gold">Gold Shine</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="btnPlay">LANJUT PILIH LAPANGAN</button>
+            <button class="btn-primary" id="btnQuit" style="background: #7f8c8d; margin-top: 8px;">KELUAR</button>
+        </div>
+    </div>
+
+    <!-- Court Select Overlay -->
+    <div class="ui-overlay hidden" id="courtSelectOverlay">
+        <div class="modal-card">
+            <h2>PILIH LAPANGAN</h2>
+            <div class="selection-grid">
+                <button class="pick-btn courtPickBtn active" data-court="cyber">Cyber Alley</button>
+                <button class="pick-btn courtPickBtn" data-court="beach">Beach Sunset</button>
+                <button class="pick-btn courtPickBtn" data-court="indoor">Indoor Arena</button>
+            </div>
+            <button class="btn-primary" id="btnConfirmCourt">LANJUT</button>
+        </div>
+    </div>
+
+    <!-- Spot Select Overlay -->
+    <div class="ui-overlay hidden" id="spotSelectOverlay">
+        <div class="modal-card">
+            <h2>PILIH SPOT TEMBAKAN</h2>
+            <div class="selection-grid">
+                <button class="pick-btn spotBtn" data-spot="freethrow">Free Throw</button>
+                <button class="pick-btn spotBtn" data-spot="leftcorner">Left Corner</button>
+                <button class="pick-btn spotBtn" data-spot="leftwing">Left Wing</button>
+                <button class="pick-btn spotBtn active" data-spot="center">Top of Key</button>
+                <button class="pick-btn spotBtn" data-spot="rightwing">Right Wing</button>
+                <button class="pick-btn spotBtn" data-spot="rightcorner">Right Corner</button>
+            </div>
+            <button class="btn-primary" id="btnStartGame">MULAI GAME</button>
+        </div>
+    </div>
+
+    <!-- Gameplay HUD UI -->
+    <div id="gameplayUI" class="hidden">
+        <div class="hud-header">
+            <div class="hud-card">SKOR: <span id="scoreVal">0</span></div>
+            <div class="hud-card" id="ballTypeTag">BOLA 1 POIN</div>
+            <div class="hud-card">WAKTU: <span id="timerVal">60</span>s</div>
+        </div>
+
+        <div id="popup">SWISH!</div>
+
+        <div class="timing-container">
+            <div class="timing-row">
+                <div class="timing-label">
+                    <span>AIM (ARAH)</span>
+                    <span id="aimVal">0.0 m</span>
+                </div>
+                <div class="timing-track" id="aimTrack">
+                    <div class="bar-green-zone" style="left: 40%; width: 20%;"></div>
+                    <div class="bar-yellow-zone" style="left: 49%; width: 2%;"></div>
+                    <div class="timing-indicator" id="aimIndicator"></div>
+                </div>
+            </div>
+
+            <div class="timing-row">
+                <div class="timing-label">
+                    <span>ELEVASI (SUDUT)</span>
+                    <span id="angleVal">50.0°</span>
+                </div>
+                <div class="timing-track" id="angleTrack">
+                    <div class="bar-green-zone" style="left: 40%; width: 20%;"></div>
+                    <div class="bar-yellow-zone" style="left: 49%; width: 2%;"></div>
+                    <div class="timing-indicator" id="angleIndicator"></div>
+                </div>
+            </div>
+
+            <div class="timing-row">
+                <div class="timing-label">
+                    <span>POWER (KECEPATAN)</span>
+                    <span id="speedVal">9.5 m/s</span>
+                </div>
+                <div class="timing-track" id="speedTrack">
+                    <div class="bar-green-zone" style="left: 40%; width: 20%;"></div>
+                    <div class="bar-yellow-zone" style="left: 49%; width: 2%;"></div>
+                    <div class="timing-indicator" id="speedIndicator"></div>
+                </div>
+            </div>
+
+            <button id="throwBtn">STOP BAR</button>
+            <div style="font-size: 11px; text-align: center; color: #888; margin-top: 6px;">
+                <span id="distanceVal">6.75 m (Top of Key)</span> | Angin: <span id="windVal">0.0 m/s</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div class="ui-overlay hidden" id="pauseModal">
+        <div class="modal-card">
+            <h2>GAME PAUSED</h2>
+            <button class="btn-primary" id="btnResume">LANJUTKAN</button>
+            <button class="btn-primary" id="btnRestartPause" style="background: #e67e22; margin-top: 8px;">RESTART</button>
+            <button class="btn-primary" id="btnQuitPause" style="background: #c0392b; margin-top: 8px;">KE MENU UTAMA</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="ui-overlay hidden" id="gameOverModal">
+        <div class="modal-card">
+            <h2>GAME SELESAI</h2>
+            <div id="newRecordBadge" class="record-badge" style="display: none;">REKOR BARU!</div>
+            <p style="font-size: 18px; margin-bottom: 8px;">Skor Akhir: <b id="summaryScore" style="color: #ff007f;">0</b></p>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 4px;">Akurasi: <span id="summaryAccuracy">0%</span></p>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 20px;">Streak Terbaik: <span id="summaryStreak">0</span></p>
+
+            <button class="btn-primary" id="btnRestart">MAIN LAGI</button>
+            <button class="btn-primary" id="btnBackMenu" style="background: #7f8c8d; margin-top: 8px;">KE MENU UTAMA</button>
+        </div>
+    </div>
+
+    <script src="lib.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
